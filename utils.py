@@ -25,13 +25,14 @@ from trulens_eval import (
 
 def get_prebuilt_trulens_recorder(query_engine, app_id):
     openai = AzureOpenAI(deployment_name="G35" )
-
+    print("*******\nanswer relevance\n******")
     qa_relevance = (
         Feedback(
             openai.relevance_with_cot_reasons, name = "answer relevance"
         ).on_input_output()
         )
     
+    print("*******\ncontext relevance\n******")
     qs_relevance = (
         Feedback(
             openai.relevance_with_cot_reasons, name = "context relecnace"
@@ -41,14 +42,15 @@ def get_prebuilt_trulens_recorder(query_engine, app_id):
     )
 
     grounded = Groundedness(groundedness_provider = openai)
-
+    print("*******\ngroundedness relevance\n******")
     groundedness = (
         Feedback(
             grounded.groundedness_measure_with_cot_reasons, name = "groundedness"
-        ).on_output()
-        .aggregate(grounded.grounded_statements_aggregator)
-    )
+        ).on_output().on(TruLlama.select_source_nodes().node.text).aggregate(np.mean)
 
+
+        #.aggregate(grounded.grounded_statements_aggregator)
+    )
     feedbacks = [qa_relevance, qs_relevance, groundedness]
     tru_recorder = TruLlama(
         query_engine, 
