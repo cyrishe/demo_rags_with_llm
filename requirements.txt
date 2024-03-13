@@ -1,0 +1,4 @@
+llama-index
+llama-index.llms.azure_openai
+llama-index.embeddings.azure_openai
+llama-index.readers.web
